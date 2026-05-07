@@ -1,2 +1,2 @@
-Holodeck - Experiments with Physics Simulations
-===============================================
+Holodeck - Experiments with Computational Physics
+=================================================
