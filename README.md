@@ -1,2 +1,2 @@
-Holodeck - Experiments with Simulation and Graphics
-===================================================
+Holodeck - Experiments with Scientific Simulation
+=================================================
