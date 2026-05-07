@@ -1,2 +1,2 @@
-# naturalist
-Experiments with Natural Laws and Forces
+Naturalist - Experiments with Natural Laws and Forces
+=====================================================
