@@ -6,10 +6,14 @@ License: Apache 2.0 license
 
 #include "stdio.h"
 #include "SDL3/SDL.h"
-// #include "../inc/object.h"
+#include "../inc/object.h"
 
 int main(void) {
-    printf("test\n");
+    Object *object = object_new();
+
+    printf("%f\n", object->mass);
+
+    object_free(object);
 
     return 0;
 }
