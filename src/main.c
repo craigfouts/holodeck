@@ -6,14 +6,16 @@ License: Apache 2.0 license
 
 #include "stdio.h"
 #include "SDL3/SDL.h"
-#include "../inc/object.h"
+#include "../inc/world.h"
 
 int main(void) {
-    Object *object = object_new();
+    World *world = world_new(.n_objects=2);
+    world->objects[1]->mass = 10.0;
 
-    printf("%f\n", object->mass);
+    printf("%f\n", world->objects[0]->mass);
+    printf("%f\n", world->objects[1]->mass);
 
-    object_free(object);
+    world_free(world);
 
     return 0;
 }
