@@ -21,6 +21,7 @@ typedef struct {
 } _world_new_args;
 
 typedef struct {
+    size_t n_steps;
     float dt;
 } _world_step_args;
 
