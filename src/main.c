@@ -22,11 +22,18 @@ int main(void) {
 
     // world_free(world);
 
-    App *app = app_new(.n_objects=1);
+    App *app = app_new("Test App", .n_objects=1);
+
+    if (!app) {
+        printf("APP ERROR: Failed to create App.\n");
+
+        return 1;
+    }
+
     app->world->objects[0]->position[0] = 200.0;
     app->world->objects[0]->position[1] = 50.0;
 
-    app_run(app);
+    app_run(app, .dt=.01);
     
     app_free(app);
 

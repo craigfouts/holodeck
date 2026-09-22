@@ -6,6 +6,18 @@ License: Apache 2.0 license
 
 #include "../inc/app.h"
 
+static void _app_init_world(App *app, float gravity, size_t n_objects) {
+    app->world = world_new(gravity, n_objects);
+    app->objects = malloc(n_objects*sizeof(SDL_FRect));
+
+    for (size_t i = 0; i < n_objects; ++i)
+        app->objects[i] = &(SDL_FRect) {
+            app->world->objects[i]->position[0],
+            app->world->objects[i]->position[1],
+            100, 100
+        };
+}
+
 static App *_app_new(const char *title, float width, float height, float gravity, size_t n_objects) {
     SDL_Init(SDL_INIT_VIDEO);
     App *app = malloc(sizeof(App));
@@ -25,9 +37,38 @@ static App *_app_new(const char *title, float width, float height, float gravity
         return NULL;
     }
 
-    app->world = world_new(gravity, n_objects);
+    _app_init_world(app, gravity, n_objects);
 
     return app;
+}
+
+static void _app_draw_objects(App *app) {
+    for (size_t i = 0; i < app->world->n_objects; ++i) {
+        app->objects[i]->x = app->world->objects[i]->position[0];
+        app->objects[i]->y = app->world->objects[i]->position[1];
+        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
+        SDL_RenderClear(app->renderer);
+        SDL_SetRenderDrawColor(app->renderer, 0, 255, 0, 255);
+        SDL_RenderFillRect(app->renderer, app->objects[i]);
+        SDL_RenderPresent(app->renderer);
+    }
+}
+
+static bool _app_step(App *app, SDL_Event *e, float dt) {
+    while (SDL_PollEvent(e))
+        if ((*e).type == SDL_EVENT_QUIT)
+            return false;
+
+    _app_draw_objects(app);
+    world_step(app->world, .dt=dt);
+
+    return true;
+}
+
+static void _app_run(App *app, float dt) {    
+    SDL_Event e;
+
+    while (app_step(app, &e, .dt=dt));
 }
 
 App *_app_new_wrap(_app_new_args args) {
@@ -40,40 +81,16 @@ App *_app_new_wrap(_app_new_args args) {
     return _app_new(title, width, height, gravity, n_objects);
 }
 
-void app_run(App *app) {    
-    SDL_FRect objects[app->world->n_objects];
+bool _app_step_wrap(App *app, SDL_Event *e, _app_step_args args) {
+    float dt = args.dt ? args.dt : 0.1;
 
-    for (size_t i = 0; i < app->world->n_objects; ++i) {
-        objects[i] = (SDL_FRect) {
-            app->world->objects[i]->position[0],
-            app->world->objects[i]->position[1],
-            100, 100
-        };
-    }
+    return _app_step(app, e, dt);
+}
 
-    SDL_Event event;
-    bool quit = false;
+void _app_run_wrap(App *app, _app_run_args args) {
+    float dt = args.dt ? args.dt : 0.1;
 
-    while (!quit) {
-        while (SDL_PollEvent(&event))
-            if (event.type == SDL_EVENT_QUIT)
-                quit = true;
-
-        if (quit)
-            continue;
-
-        for (size_t i = 0; i < app->world->n_objects; ++i) {
-            objects[i].x = app->world->objects[i]->position[0];
-            objects[i].y = app->world->objects[i]->position[1];
-            SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
-            SDL_RenderClear(app->renderer);
-            SDL_SetRenderDrawColor(app->renderer, 0, 255, 0, 255);
-            SDL_RenderFillRect(app->renderer, &objects[i]);
-            SDL_RenderPresent(app->renderer);
-        }
-
-        world_step(app->world);
-    }
+    _app_run(app, dt);
 }
 
 void app_free(App *app) {
